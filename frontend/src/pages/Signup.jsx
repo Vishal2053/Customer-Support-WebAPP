@@ -6,18 +6,23 @@ import { useAuth } from '../hooks'
 
 export const Signup = () => {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard')
+    if (isAuthenticated && user) {
+      if (user.role === 'admin' || user.email === 'datascientistvishu@gmail.com') {
+        navigate('/admin')
+      } else {
+        navigate('/dashboard')
+      }
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, user, navigate])
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div className="glow-blob glow-indigo top-20 left-1/3"></div>
+      <div className="flex items-center justify-center py-24 px-4 relative z-10">
         <SignupForm />
       </div>
     </div>

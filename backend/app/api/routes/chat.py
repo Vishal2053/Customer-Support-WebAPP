@@ -3,11 +3,21 @@ Chat routes
 """
 import logging
 from fastapi import APIRouter, HTTPException, Depends, WebSocket
+from pydantic import BaseModel
+from supabase import Client
+from app.db import get_service_db
 from app.schemas import VisitorChatRequest
 from app.services import get_chat_service, ChatService, get_ai_service, GroqAIService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+class AdminChatMessageRequest(BaseModel):
+    conversation_id: str
+    message: str
+
+class ChatModeRequest(BaseModel):
+    chat_mode: str
 
 
 @router.post("/start")
@@ -75,15 +85,54 @@ async def send_message(
 @router.get("/conversations/{user_id}")
 async def get_conversations(
     user_id: str,
-    chat_service: ChatService = Depends(get_chat_service)
+    chat_service: ChatService = Depends(get_chat_service),
+    db: Client = Depends(get_service_db)
 ):
     """Get all conversations for user"""
     try:
+        # Update last_active_at for the admin
+        try:
+            db.table("users").update({"last_active_at": "now()"}).eq("id", user_id).execute()
+        except Exception as active_err:
+            logger.warning(f"Failed to update last_active_at: {active_err}")
+
         conversations = await chat_service.get_conversations(user_id)
         return {"conversations": conversations}
     except Exception as e:
         logger.error(f"Get conversations error: {e}")
         raise HTTPException(status_code=500, detail="Failed to get conversations")
+
+
+@router.post("/message/admin")
+async def send_admin_message(
+    request: AdminChatMessageRequest,
+    chat_service: ChatService = Depends(get_chat_service),
+    db: Client = Depends(get_service_db)
+):
+    """Admin sends message to visitor"""
+    try:
+        await chat_service.add_message(request.conversation_id, "assistant", request.message)
+        # Update conversation updated_at and switch to 'human' mode
+        db.table("conversations").update({"chat_mode": "human", "updated_at": "now()"}).eq("id", request.conversation_id).execute()
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Send admin message error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send admin message")
+
+
+@router.post("/conversation/{conversation_id}/mode")
+async def update_conversation_mode(
+    conversation_id: str,
+    request: ChatModeRequest,
+    db: Client = Depends(get_service_db)
+):
+    """Update chat mode for a conversation (admin taking over or handing back to AI)"""
+    try:
+        db.table("conversations").update({"chat_mode": request.chat_mode, "updated_at": "now()"}).eq("id", conversation_id).execute()
+        return {"status": "ok", "chat_mode": request.chat_mode}
+    except Exception as e:
+        logger.error(f"Error updating conversation mode: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update conversation mode")
 
 
 @router.get("/conversation/{conversation_id}")

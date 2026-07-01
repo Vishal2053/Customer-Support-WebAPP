@@ -28,6 +28,9 @@ async def test_signup_success(auth_service):
 @pytest.mark.asyncio
 async def test_signup_duplicate_email(auth_service):
     """Test signup with duplicate email"""
+    # Mock that user already exists in DB
+    auth_service.service_db.table().select().eq().execute().data = [{"id": "existing-user-id"}]
+    
     user_data = UserSignupRequest(
         email="test@example.com",
         password="securepassword123",

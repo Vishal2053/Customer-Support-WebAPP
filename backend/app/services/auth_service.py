@@ -4,6 +4,7 @@ Authentication service
 import logging
 from typing import Optional
 from postgrest.exceptions import APIError
+from gotrue.errors import AuthApiError
 from supabase import Client
 from app.schemas import UserSignupRequest, UserLoginRequest
 from app.db import get_db
@@ -124,6 +125,9 @@ class AuthService:
                 "user": user,
             }
             
+        except AuthApiError as e:
+            logger.warning(f"Login authentication error for {user_data.email}: {e}")
+            raise ValueError("Invalid credentials") from e
         except Exception as e:
             logger.error(f"Login error: {e}")
             raise

@@ -38,6 +38,8 @@ class WebsiteSourceRequest(BaseModel):
     """Website source submission"""
     url: str
     name: Optional[str] = None
+    crawl: Optional[bool] = False
+
 
 
 class DocumentUploadRequest(BaseModel):

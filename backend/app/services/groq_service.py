@@ -3,7 +3,7 @@ AI/LLM service using Groq API
 """
 import logging
 from typing import Optional
-from groq import Groq
+from groq import AsyncGroq
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -13,8 +13,8 @@ class GroqAIService:
     """Groq AI service for generating responses"""
     
     def __init__(self):
-        self.client = Groq(api_key=settings.groq_api_key)
-        self.model = settings.groq_model
+        self.client = AsyncGroq(api_key=settings.GROQ_API_KEY)
+        self.model = "llama-3.1-8b-instant"
     
     async def generate_response(
         self, 
@@ -37,12 +37,18 @@ class GroqAIService:
         """
         try:
             # Build system message with context
-            system_message = "You are a helpful customer support assistant."
+            system_message = (
+                "You are a helpful, polite customer support assistant for this website.\n"
+                "- If the user says hello or greets you, greet them back warmly and ask how you can help.\n"
+                "- Use the Knowledge Base Context provided below to answer their questions.\n"
+                "- DO NOT just copy-paste the raw context or spit out raw links unless asked.\n"
+                "- Answer in a natural, conversational tone."
+            )
             if context:
                 system_message += f"\n\nKnowledge Base Context:\n{context}"
             
             # Call Groq API
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {
@@ -109,7 +115,7 @@ class GroqAIService:
             })
             
             # Call Groq API
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 temperature=0.7,

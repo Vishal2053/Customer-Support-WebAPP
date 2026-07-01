@@ -25,7 +25,12 @@ export const LoginForm = () => {
         user: response.data.user,
         token: response.data.access_token,
       })
-      navigate('/dashboard', { replace: true })
+      const user = response.data.user
+      if (user.role === 'admin' || user.email === 'datascientistvishu@gmail.com') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed')
     } finally {
@@ -35,7 +40,7 @@ export const LoginForm = () => {
 
   return (
     <Card className="w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-6">Login</h2>
+      <h2 className="text-2xl font-bold mb-6 text-white text-center">Login</h2>
       <form onSubmit={handleSubmit}>
         <Input
           type="email"
@@ -53,14 +58,11 @@ export const LoginForm = () => {
           placeholder="••••••••"
           required
         />
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Logging in...' : 'Login'}
         </Button>
       </form>
-      <p className="text-center mt-4 text-sm text-gray-600">
-        Don't have an account? <a href="/signup" className="text-primary-500 hover:underline">Sign up</a>
-      </p>
     </Card>
   )
 }
@@ -99,7 +101,7 @@ export const SignupForm = () => {
 
   return (
     <Card className="w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-6">Create Account</h2>
+      <h2 className="text-2xl font-bold mb-6 text-white">Create Account</h2>
       <form onSubmit={handleSubmit}>
         <Input
           type="email"
@@ -141,13 +143,13 @@ export const SignupForm = () => {
           onChange={handleChange}
           placeholder="Doe"
         />
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Creating account...' : 'Sign Up'}
         </Button>
       </form>
-      <p className="text-center mt-4 text-sm text-gray-600">
-        Already have an account? <a href="/login" className="text-primary-500 hover:underline">Login</a>
+      <p className="text-center mt-4 text-sm text-slate-400">
+        Already have an account? <a href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold hover:underline">Login</a>
       </p>
     </Card>
   )

@@ -86,6 +86,8 @@ async def delete_knowledge_item(
     try:
         success = await kb_service.delete_document(user_id, item_id)
         return {"success": success}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Delete item error: {e}")
         _raise_knowledge_base_error(e, "Failed to delete item")

@@ -3,6 +3,7 @@ import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { Dashboard } from './pages/Dashboard'
+import { AdminPanel } from './pages/AdminPanel'
 import { useAuth } from './hooks'
 import './styles/index.css'
 
@@ -11,6 +12,20 @@ const ProtectedRoute = ({ children }) => {
   
   if (!isAuthenticated) {
     return <Navigate to="/login" />
+  }
+  
+  return children
+}
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuth()
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />
+  }
+  
+  if (user?.role !== 'admin' && user?.email !== 'datascientistvishu@gmail.com') {
+    return <Navigate to="/dashboard" />
   }
   
   return children
@@ -29,6 +44,14 @@ export default function App() {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
           }
         />
       </Routes>

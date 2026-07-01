@@ -5,7 +5,7 @@ import logging
 from typing import List, Optional
 from supabase import Client
 from app.utils.security import generate_conversation_id
-from app.db import get_db
+from app.db import get_service_db
 
 logger = logging.getLogger(__name__)
 
@@ -102,5 +102,5 @@ class ChatService:
 
 def get_chat_service() -> ChatService:
     """Dependency for chat service"""
-    db = get_db()
+    db = get_service_db()
     return ChatService(db)

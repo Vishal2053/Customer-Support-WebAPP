@@ -1,9 +1,15 @@
 """
 Application configuration settings
 """
+import os
 from typing import Any, List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+
+# Force reload from .env to override any stale environment variables during uvicorn reload
+load_dotenv(override=True)
+
 
 
 class Settings(BaseSettings):

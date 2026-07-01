@@ -30,17 +30,26 @@ async def get_stats(
 ):
     """Get conversation statistics"""
     try:
+        # Update last_active_at for the admin
+        try:
+            db.table("users").update({"last_active_at": "now()"}).eq("id", user_id).execute()
+        except Exception as active_err:
+            logger.warning(f"Failed to update last_active_at: {active_err}")
+
         # Get total conversations
         conv_response = db.table("conversations").select(
             "id", count="exact"
         ).eq("user_id", user_id).execute()
-        total_conversations = len(conv_response.data)
+        total_conversations = conv_response.count if conv_response.count is not None else len(conv_response.data)
         
-        # Get total messages
-        msg_response = db.table("messages").select(
-            "id", count="exact"
-        ).execute()
-        total_messages = len(msg_response.data)
+        # Get total messages for those conversations
+        conv_ids = [conv["id"] for conv in conv_response.data] if conv_response.data else []
+        total_messages = 0
+        if conv_ids:
+            msg_response = db.table("messages").select(
+                "id", count="exact"
+            ).in_("conversation_id", conv_ids).execute()
+            total_messages = msg_response.count if msg_response.count is not None else len(msg_response.data)
         
         return {
             "total_conversations": total_conversations,
@@ -64,19 +73,28 @@ async def get_leads(
 ):
     """Get leads (unique visitors)"""
     try:
+        # Update last_active_at for the admin
+        try:
+            db.table("users").update({"last_active_at": "now()"}).eq("id", user_id).execute()
+        except Exception as active_err:
+            logger.warning(f"Failed to update last_active_at: {active_err}")
+
         response = db.table("conversations").select("*").eq(
             "user_id", user_id
         ).order("created_at", desc=True).execute()
         
         leads = []
+        seen_emails = set()
         for conv in response.data:
-            leads.append({
-                "id": conv["id"],
-                "name": conv["visitor_name"],
-                "email": conv["visitor_email"],
-                "first_contact_date": conv["created_at"],
-                "last_contact_date": conv["updated_at"],
-            })
+            email = conv.get("visitor_email")
+            if email and email not in seen_emails:
+                seen_emails.add(email)
+                leads.append({
+                    "id": conv["id"],
+                    "visitor_name": conv["visitor_name"],
+                    "visitor_email": conv["visitor_email"],
+                    "created_at": conv["created_at"],
+                })
         
         return {"leads": leads}
     except Exception as e:

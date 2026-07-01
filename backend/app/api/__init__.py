@@ -8,6 +8,7 @@ from app.api.routes import (
     chat_router,
     widget_router,
     analytics_router,
+    admin_router,
 )
 
 api_router = APIRouter()
@@ -18,5 +19,6 @@ api_router.include_router(kb_router)
 api_router.include_router(chat_router)
 api_router.include_router(widget_router)
 api_router.include_router(analytics_router)
+api_router.include_router(admin_router)
 
 __all__ = ["api_router"]
