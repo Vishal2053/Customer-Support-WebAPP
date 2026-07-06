@@ -320,7 +320,7 @@ export const AdminPanel = () => {
 
       {/* FOOTER */}
       <footer className="py-8 bg-slate-950 border-t border-slate-900 text-center mt-auto">
-        <p className="text-sm text-slate-500 font-mono">OmniSupport AI Dashboard — Platform Administrator Portal</p>
+        <p className="text-sm text-slate-500 font-mono">Supportly Dashboard — Platform Administrator Portal</p>
       </footer>
 
       {/* ADD USER MODAL */}

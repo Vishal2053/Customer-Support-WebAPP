@@ -1,4 +1,4 @@
-import { Navbar, Hero, Features } from '../components/Layout'
+import { Navbar, Hero, HowItWorks, Features } from '../components/Layout'
 import { Button, Card } from '../components/UI'
 import { useAuth } from '../hooks'
 import { Link } from 'react-router-dom'
@@ -11,6 +11,7 @@ export const Landing = () => {
       <div>
         <Navbar />
         <Hero />
+        <HowItWorks />
         <Features />
         
         {/* Bottom Call-To-Action Section */}
@@ -43,7 +44,7 @@ export const Landing = () => {
       </div>
       
       <footer className="py-8 bg-slate-950 border-t border-slate-900 text-center">
-        <p className="text-sm text-slate-500 font-mono">OmniSupport AI — Build custom RAG assistants instantly</p>
+        <p className="text-sm text-slate-500 font-mono">Supportly — Build custom RAG assistants instantly</p>
       </footer>
     </div>
   )

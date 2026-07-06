@@ -1,11 +1,15 @@
+html {
+  scroll-behavior: smooth;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    background-color: #020617; /* Slate-950 */
-    color: #f1f5f9; /* Slate-100 */
+    background-color: #f8fafc !important; /* light body background */
+    color: #0f172a !important; /* dark text */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -14,6 +18,7 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', sans-serif;
     letter-spacing: -0.02em;
+    color: #0f172a !important;
   }
 }
 
@@ -27,40 +32,42 @@
   min-height: 100vh;
 }
 
-/* Glassmorphism custom classes */
+/* Glassmorphism custom classes - adjusted for professional white and blue theme */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 .glass-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(99, 102, 241, 0.2);
-  box-shadow: 0 12px 20px -10px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px) !important;
+  border-color: rgba(37, 99, 235, 0.2) !important;
+  box-shadow: 0 12px 20px -8px rgba(37, 99, 235, 0.12) !important;
 }
 
 .glass-input {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  color: #0f172a !important;
 }
 
 .glass-input:focus {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: rgba(37, 99, 235, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
-/* Glowing ambient blobs */
+/* Professional blue glowing ambient blobs */
 .glow-blob {
   position: absolute;
   width: 500px;
@@ -68,16 +75,112 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .glow-indigo {
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 60%, rgba(0, 0, 0, 0) 100%);
-  filter: blur(100px);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(96, 165, 250, 0.03) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  filter: blur(100px) !important;
 }
 
 .glow-cyan {
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, rgba(59, 130, 246, 0.04) 60%, rgba(0, 0, 0, 0) 100%);
-  filter: blur(80px);
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, rgba(37, 99, 235, 0.02) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  filter: blur(80px) !important;
 }
 
+/* CSS Theme Overrides to map dark classes to light professional colors */
+.text-white {
+  color: #0f172a !important; /* Headings/Labels with text-white default to dark text */
+}
+
+/* Button & Accent Overrides for contrast */
+button,
+button *,
+.bg-indigo-600,
+.bg-indigo-600 *,
+.bg-indigo-50,
+.bg-indigo-50 *,
+.bg-indigo-500,
+.bg-indigo-500 *,
+.bg-blue-600,
+.bg-blue-600 *,
+.bg-red-600,
+.bg-red-600 *,
+.text-white-force,
+.bg-emerald-500,
+.bg-emerald-500 * {
+  color: #ffffff !important;
+}
+
+/* Fix sidebar active buttons */
+.bg-indigo-600\/90 * {
+  color: #ffffff !important;
+}
+
+/* Fix badge and tag contrast */
+.bg-indigo-500\/10 {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+}
+.text-indigo-400 {
+  color: #1d4ed8 !important; /* Darker blue for contrast */
+}
+.text-indigo-300 {
+  color: #1e40af !important;
+}
+
+/* Fix secondary buttons */
+button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+}
+button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+button.bg-slate-800 * {
+  color: #1e293b !important;
+}
+
+/* Text gray scale overrides to guarantee readability in light theme */
+.text-slate-400 {
+  color: #64748b !important;
+}
+.text-slate-300 {
+  color: #475569 !important;
+}
+.text-slate-200 {
+  color: #334155 !important;
+}
+.text-slate-100 {
+  color: #1e293b !important;
+}
+.text-slate-500 {
+  color: #64748b !important;
+}
+.text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+/* Additional specific adjustments for elements that must stand out */
+.badge-success, .badge-success * {
+  color: #10b981 !important;
+}
+.border-indigo-500\/20 {
+  border-color: rgba(37, 99, 235, 0.2) !important;
+}
+.border-slate-800\/80, .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+.border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+.bg-slate-900\/60 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+.bg-slate-950\/40 {
+  background-color: rgba(248, 250, 252, 0.5) !important;
+}
+.bg-slate-950\/20 {
+  background-color: rgba(248, 250, 252, 0.3) !important;
+}

@@ -4,6 +4,7 @@ import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { Dashboard } from './pages/Dashboard'
 import { AdminPanel } from './pages/AdminPanel'
+import { Contact } from './pages/Contact'
 import { useAuth } from './hooks'
 import './styles/index.css'
 
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/contact" element={<Contact />} />
         <Route
           path="/dashboard"
           element={
