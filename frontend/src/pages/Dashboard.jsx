@@ -7,6 +7,47 @@ import { useAuthStore } from '../context/store'
 import { Card, Button, Badge } from '../components/UI'
 import { knowledgeBaseAPI, widgetAPI, analyticsAPI, chatAPI } from '../services'
 
+const LauncherIconSvg = ({ name, className = "w-6 h-6" }) => {
+  if (name === 'support_agent') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6-4.7 8.38 8.38 0 0 1-.9-3.8v-.5a8 8 0 0 1 16 0v.5z" />
+        <path d="M18 10a6 6 0 0 0-12 0" />
+        <path d="M12 18h.01" />
+        <path d="M21 11.5a1.5 1.5 0 0 1-3 0v-1a1.5 1.5 0 0 1 3 0v1z" />
+        <path d="M6 11.5a1.5 1.5 0 0 1-3 0v-1a1.5 1.5 0 0 1 3 0v1z" />
+      </svg>
+    )
+  }
+  if (name === 'chat_dots') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        <circle cx="8" cy="10" r="1" />
+        <circle cx="12" cy="10" r="1" />
+        <circle cx="16" cy="10" r="1" />
+      </svg>
+    )
+  }
+  if (name === 'sparkles') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5 5 3Z" />
+        <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z" />
+      </svg>
+    )
+  }
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <line x1="8" y1="9" x2="16" y2="9" />
+      <line x1="8" y1="13" x2="14" y2="13" />
+    </svg>
+  )
+}
+
+
 export const Dashboard = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
@@ -17,6 +58,20 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(false)
   const [widgetLoading, setWidgetLoading] = useState(true)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
+
+  // Widget Customizer States
+  const [widgetTitle, setWidgetTitle] = useState('Chat with us')
+  const [widgetDesc, setWidgetDesc] = useState('How can we help?')
+  const [primaryColor, setPrimaryColor] = useState('#4F46E5')
+  const [widgetPosition, setWidgetPosition] = useState('bottom-right')
+  const [welcomeTitle, setWelcomeTitle] = useState('hey hii')
+  const [welcomeMessage, setWelcomeMessage] = useState('hii how can i help you')
+  const [launcherIcon, setLauncherIcon] = useState('chat_bubble')
+  const [bubbleEnabled, setBubbleEnabled] = useState(true)
+  const [savingWidget, setSavingWidget] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [previewChatOpen, setPreviewChatOpen] = useState(false)
+  const [previewBubbleDismissed, setPreviewBubbleDismissed] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,7 +96,16 @@ export const Dashboard = () => {
     try {
       const response = await widgetAPI.getUserWidget(user.id)
       if (response.data?.widget) {
-        setWidget(response.data.widget)
+        const w = response.data.widget
+        setWidget(w)
+        setWidgetTitle(w.title || 'Chat with us')
+        setWidgetDesc(w.description || 'How can we help?')
+        setPrimaryColor(w.theme?.primary_color || '#4F46E5')
+        setWidgetPosition(w.theme?.position || 'bottom-right')
+        setWelcomeTitle(w.theme?.welcome_title || 'hey hii')
+        setWelcomeMessage(w.theme?.welcome_message || 'hii how can i help you')
+        setLauncherIcon(w.theme?.launcher_icon || 'chat_bubble')
+        setBubbleEnabled(w.theme?.bubble_enabled !== false)
       }
     } catch (error) {
       console.error('Failed to load widget:', error)
@@ -55,11 +119,57 @@ export const Dashboard = () => {
     setLoading(true)
     try {
       const response = await widgetAPI.generateWidget(user.id)
-      setWidget(response.data)
+      const w = response.data
+      setWidget(w)
+      setWidgetTitle(w.title || 'Chat with us')
+      setWidgetDesc(w.description || 'How can we help?')
+      setPrimaryColor(w.theme?.primary_color || '#4F46E5')
+      setWidgetPosition(w.theme?.position || 'bottom-right')
+      setWelcomeTitle(w.theme?.welcome_title || 'hey hii')
+      setWelcomeMessage(w.theme?.welcome_message || 'hii how can i help you')
+      setLauncherIcon(w.theme?.launcher_icon || 'chat_bubble')
+      setBubbleEnabled(w.theme?.bubble_enabled !== false)
     } catch (error) {
       console.error('Failed to generate widget:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSaveWidgetSettings = async (e) => {
+    e.preventDefault()
+    if (!widget?.widget_id) return
+    setSavingWidget(true)
+    setSaveSuccess(false)
+    try {
+      const updatedTheme = {
+        primary_color: primaryColor,
+        secondary_color: '#FFFFFF',
+        position: widgetPosition,
+        welcome_title: welcomeTitle,
+        welcome_message: welcomeMessage,
+        launcher_icon: launcherIcon,
+        bubble_enabled: bubbleEnabled
+      }
+      const response = await widgetAPI.updateWidget(widget.widget_id, {
+        title: widgetTitle,
+        description: widgetDesc,
+        theme: updatedTheme
+      })
+      
+      // Update local widget state with new details
+      setWidget(prev => ({
+        ...prev,
+        title: response.data.title,
+        description: response.data.description,
+        theme: response.data.theme
+      }))
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (error) {
+      console.error('Failed to update widget settings:', error)
+    } finally {
+      setSavingWidget(false)
     }
   }
 
@@ -285,6 +395,323 @@ export const Dashboard = () => {
                         <a href={widget.widget_url} target="_blank" rel="noopener noreferrer">
                           <Button size="sm" variant="outline">Open Demo 🔗</Button>
                         </a>
+                      </div>
+
+                      {/* Visual Editor Section */}
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-t border-slate-800/80 pt-8 mt-8">
+                        {/* Customizer Settings Form */}
+                        <div className="lg:col-span-5 space-y-6">
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-lg text-white">🎨 Customize Widget</h3>
+                            <p className="text-xs text-slate-400">Design your widget appearance and colors in real-time.</p>
+                          </div>
+                          
+                          <form onSubmit={handleSaveWidgetSettings} className="space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Widget Title (Header)</label>
+                              <input
+                                type="text"
+                                value={widgetTitle}
+                                onChange={(e) => setWidgetTitle(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                                placeholder="Chat with us"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Welcome Description</label>
+                              <input
+                                type="text"
+                                value={widgetDesc}
+                                onChange={(e) => setWidgetDesc(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                                placeholder="How can we help?"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Primary Accent Color</label>
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="color"
+                                  value={primaryColor}
+                                  onChange={(e) => setPrimaryColor(e.target.value)}
+                                  className="w-10 h-10 border border-slate-800 rounded cursor-pointer bg-transparent"
+                                />
+                                <input
+                                  type="text"
+                                  value={primaryColor}
+                                  onChange={(e) => setPrimaryColor(e.target.value)}
+                                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                />
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {['#4F46E5', '#1f6650', '#0284C7', '#059669', '#DC2626', '#7C3AED'].map((c) => (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => setPrimaryColor(c)}
+                                    className={`w-6 h-6 rounded-full border ${primaryColor === c ? 'border-white scale-110' : 'border-slate-800'} transition-all`}
+                                    style={{ backgroundColor: c }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="border-t border-slate-800 pt-4 mt-4">
+                              <h4 className="font-semibold text-sm text-slate-300 mb-3">Welcome Prompter Bubble</h4>
+                              
+                              <div className="mb-3 flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  id="bubbleEnabled"
+                                  checked={bubbleEnabled}
+                                  onChange={(e) => setBubbleEnabled(e.target.checked)}
+                                  className="rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                                />
+                                <label htmlFor="bubbleEnabled" className="text-sm text-slate-300 select-none cursor-pointer">Show prompt bubble next to icon</label>
+                              </div>
+
+                              {bubbleEnabled && (
+                                <div className="space-y-3 pl-4 border-l border-slate-800">
+                                  <div>
+                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Bubble Title (Bold)</label>
+                                    <input
+                                      type="text"
+                                      value={welcomeTitle}
+                                      onChange={(e) => setWelcomeTitle(e.target.value)}
+                                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                      placeholder="hey hii"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Bubble Message</label>
+                                    <input
+                                      type="text"
+                                      value={welcomeMessage}
+                                      onChange={(e) => setWelcomeMessage(e.target.value)}
+                                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                      placeholder="hii how can i help you"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="border-t border-slate-800 pt-4">
+                              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Launcher Button Icon</label>
+                              <div className="grid grid-cols-4 gap-2">
+                                {[
+                                  { id: 'chat_bubble', label: 'Message' },
+                                  { id: 'chat_dots', label: 'Dots' },
+                                  { id: 'support_agent', label: 'Agent' },
+                                  { id: 'sparkles', label: 'AI Spark' }
+                                ].map((item) => (
+                                  <button
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => setLauncherIcon(item.id)}
+                                    className={`flex flex-col items-center justify-center p-2.5 rounded-lg border transition-all cursor-pointer ${
+                                      launcherIcon === item.id
+                                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
+                                        : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-350 hover:bg-slate-900/60'
+                                    }`}
+                                  >
+                                    <LauncherIconSvg name={item.id} className="w-5 h-5 mb-1" />
+                                    <span className="text-[10px] font-semibold">{item.label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Widget Screen Position</label>
+                              <select
+                                value={widgetPosition}
+                                onChange={(e) => setWidgetPosition(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                              >
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                              </select>
+                            </div>
+
+                            <div className="pt-2">
+                              <Button type="submit" disabled={savingWidget} className="w-full flex items-center justify-center gap-2">
+                                {savingWidget ? 'Saving...' : 'Save Design Settings'}
+                              </Button>
+                              {saveSuccess && (
+                                <p className="text-emerald-400 text-xs font-semibold text-center mt-2 animate-pulse">
+                                  ✓ Design settings saved successfully!
+                                </p>
+                              )}
+                            </div>
+                          </form>
+                        </div>
+
+                        {/* Live Design Preview */}
+                        <div className="lg:col-span-7 flex flex-col space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-lg text-white">👀 Live Design Preview</h3>
+                              <p className="text-xs text-slate-400 font-normal">Click elements inside the browser mock below to test the widget logic.</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setPreviewChatOpen(false)
+                                setPreviewBubbleDismissed(false)
+                              }}
+                              className="text-xs text-indigo-400 hover:text-indigo-350 font-semibold cursor-pointer"
+                            >
+                              Reset Preview State
+                            </button>
+                          </div>
+                          
+                          <div className="w-full h-[520px] border border-slate-800 rounded-xl relative overflow-hidden bg-slate-950 flex flex-col shadow-inner">
+                            {/* Browser Mock Header */}
+                            <div className="bg-slate-900 border-b border-slate-800/80 px-4 py-3 flex items-center gap-2 text-slate-400">
+                              <div className="flex gap-1.5">
+                                <div className="w-2 h-2 rounded-full bg-rose-500/80"></div>
+                                <div className="w-2 h-2 rounded-full bg-amber-500/80"></div>
+                                <div className="w-2 h-2 rounded-full bg-emerald-500/80"></div>
+                              </div>
+                              <div className="bg-slate-950/80 border border-slate-800/80 text-[10px] font-mono text-slate-500 px-3 py-1 rounded flex-1 text-center select-none truncate">
+                                🌐 https://your-website.com
+                              </div>
+                            </div>
+
+                            {/* Simulated Website Content */}
+                            <div className="flex-1 p-8 flex flex-col justify-center items-center text-center space-y-4 relative select-none bg-slate-950/50">
+                              <div className="max-w-md space-y-2">
+                                <h1 className="text-2xl font-black text-slate-200">Your Web Page</h1>
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                  This is a visual preview simulation of how your custom chat widget integrates on your pages.
+                                </p>
+                                <div className="flex justify-center gap-2 pt-2">
+                                  <div className="h-1.5 w-16 bg-slate-850 rounded-full"></div>
+                                  <div className="h-1.5 w-24 bg-slate-850 rounded-full"></div>
+                                  <div className="h-1.5 w-12 bg-slate-850 rounded-full"></div>
+                                </div>
+                              </div>
+
+                              {/* Interactive Launcher Bubble & Chat Window inside Mock Website */}
+                              <div className={`absolute bottom-4 ${widgetPosition === 'bottom-left' ? 'left-4' : 'right-4'} flex flex-col items-${widgetPosition === 'bottom-left' ? 'start' : 'end'} z-40`}>
+                                
+                                {/* Mock Chat Window Panel */}
+                                {previewChatOpen && (
+                                  <div className="w-[290px] h-[360px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-slate-850 mb-3 animate-fade-in-up">
+                                    {/* Mock Header */}
+                                    <div className="px-4 py-3.5 text-white font-bold text-sm flex justify-between items-center" style={{ backgroundColor: primaryColor }}>
+                                      <span>{widgetTitle || 'Chat with us'}</span>
+                                      <button 
+                                        onClick={() => setPreviewChatOpen(false)}
+                                        className="text-white/80 hover:text-white text-base font-bold outline-none cursor-pointer"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                    {/* Mock Message Area */}
+                                    <div className="flex-1 bg-slate-55 p-3 overflow-y-auto space-y-3 flex flex-col text-xs">
+                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                        Hi! Before we begin, what is your name?
+                                      </div>
+                                      <div className="self-end max-w-[85%] text-white px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor }}>
+                                        John Doe
+                                      </div>
+                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                        Thanks, John! What is your email address?
+                                      </div>
+                                      <div className="self-end max-w-[85%] text-white px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor }}>
+                                        john@example.com
+                                      </div>
+                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                        {widgetDesc || 'How can we help?'}
+                                      </div>
+                                    </div>
+                                    {/* Mock Form */}
+                                    <div className="p-2 border-t border-slate-100 bg-white flex gap-2">
+                                      <input
+                                        type="text"
+                                        disabled
+                                        placeholder="Type your message..."
+                                        className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-400 outline-none"
+                                      />
+                                      <button
+                                        type="button"
+                                        className="text-white text-xs font-semibold px-3 py-1.5 rounded-lg select-none cursor-not-allowed"
+                                        style={{ backgroundColor: primaryColor }}
+                                      >
+                                        Send
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Welcome Bubble */}
+                                {bubbleEnabled && !previewBubbleDismissed && !previewChatOpen && (
+                                  <div
+                                    onClick={() => {
+                                      setPreviewChatOpen(true)
+                                      setPreviewBubbleDismissed(true)
+                                    }}
+                                    className={`absolute bottom-1 ${
+                                      widgetPosition === 'bottom-left' ? 'left-[60px]' : 'right-[60px]'
+                                    } w-[210px] bg-white border border-slate-200 border-t-4 rounded-xl shadow-xl p-3 cursor-pointer text-left text-slate-800 hover:-translate-y-0.5 transition-transform duration-200`}
+                                    style={{ borderTopColor: primaryColor }}
+                                  >
+                                    {/* Tail pointer */}
+                                    <div
+                                      className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-slate-200 ${
+                                        widgetPosition === 'bottom-left'
+                                          ? 'left-[-6px] border-b border-l'
+                                          : 'right-[-6px] border-t border-r'
+                                      }`}
+                                    />
+                                    {/* Dismiss button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setPreviewBubbleDismissed(true)
+                                      }}
+                                      className="absolute right-2 top-1 text-slate-400 hover:text-slate-600 text-xs font-bold font-mono p-1 select-none outline-none cursor-pointer"
+                                    >
+                                      ×
+                                    </button>
+                                    <div className="font-bold text-xs text-slate-900 mb-1 pr-4 break-words">
+                                      {welcomeTitle || 'hey hii'}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 leading-normal break-words">
+                                      {welcomeMessage || 'hii how can i help you'}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Circular FAB Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPreviewChatOpen(!previewChatOpen)
+                                    if (!previewChatOpen) {
+                                      setPreviewBubbleDismissed(true)
+                                    }
+                                  }}
+                                  className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer outline-none text-white border-0"
+                                  style={{ backgroundColor: primaryColor }}
+                                >
+                                  {previewChatOpen ? (
+                                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                  ) : (
+                                    <LauncherIconSvg name={launcherIcon} className="w-6 h-6" />
+                                  )}
+                                </button>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : (

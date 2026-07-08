@@ -43,6 +43,7 @@ export const widgetAPI = {
   generateWidget: (userId) => api.post(`/widget/generate?user_id=${userId}`),
   getWidget: (widgetId) => api.get(`/widget/${widgetId}`),
   getUserWidget: (userId) => api.get(`/widget/user/${userId}`),
+  updateWidget: (widgetId, data) => api.put(`/widget/${widgetId}`, data),
 }
 
 export const analyticsAPI = {

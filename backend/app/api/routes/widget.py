@@ -31,6 +31,12 @@ class ChatModeUpdateRequest(BaseModel):
     chat_mode: str
 
 
+class WidgetUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    theme: Optional[dict] = None
+
+
 @router.post("/generate")
 async def generate_widget(
     user_id: str,
@@ -331,6 +337,42 @@ async def get_widget_conversation_messages(
         raise HTTPException(status_code=500, detail="Failed to fetch messages")
 
 
+@router.put("/{widget_id}")
+async def update_widget(
+    widget_id: str,
+    request: WidgetUpdateRequest,
+    db: Client = Depends(get_service_db)
+):
+    """Update widget configuration"""
+    try:
+        # Check if widget exists
+        existing = db.table("chatbot_widgets").select("*").eq(
+            "widget_id", widget_id
+        ).execute()
+        if not existing.data:
+            raise HTTPException(status_code=404, detail="Widget not found")
+        
+        # Build update payload
+        update_data = {}
+        if request.title is not None:
+            update_data["title"] = request.title
+        if request.description is not None:
+            update_data["description"] = request.description
+        if request.theme is not None:
+            update_data["theme"] = request.theme
+            
+        update_data["updated_at"] = "now()"
+        
+        response = db.table("chatbot_widgets").update(update_data).eq(
+            "widget_id", widget_id
+        ).execute()
+        
+        return response.data[0]
+    except Exception as e:
+        logger.error(f"Update widget error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update widget")
+
+
 @router.get("/{widget_id}")
 async def get_widget(
     widget_id: str,
@@ -567,9 +609,20 @@ def _build_widget_script(config: dict) -> str:
   function mountWidget() {{
   if (document.getElementById('ai-support-widget-root-' + config.widgetId)) return;
 
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    @keyframes widget-fade-in-up {{
+      from {{ opacity: 0; transform: translateY(10px); }}
+      to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    .widget-bubble-dismiss:hover {{ color: #475569 !important; }}
+  `;
+  document.head.appendChild(styleEl);
+
   const root = document.createElement('div');
   root.id = 'ai-support-widget-root-' + config.widgetId;
-  root.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483647;font-family:Arial,sans-serif;';
+  const isLeft = config.theme.position === 'bottom-left';
+  root.style.cssText = 'position:fixed;' + (isLeft ? 'left:20px;' : 'right:20px;') + 'bottom:20px;z-index:2147483647;font-family:Arial,sans-serif;box-sizing:border-box;';
 
   const panel = document.createElement('div');
   panel.style.cssText = 'display:none;width:320px;max-width:calc(100vw - 40px);height:420px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 18px 40px rgba(15,23,42,.22);overflow:hidden;margin-bottom:12px;';
@@ -607,10 +660,35 @@ def _build_widget_script(config: dict) -> str:
   form.appendChild(input);
   form.appendChild(send);
 
+  // Circular FAB Button
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Chat';
-  button.style.cssText = 'float:right;border:0;border-radius:999px;background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;padding:14px 18px;font-weight:700;box-shadow:0 10px 25px rgba(15,23,42,.22);cursor:pointer;';
+  button.style.cssText = 'display:flex;align-items:center;justify-content:center;width:56px;height:56px;border:0;border-radius:50%;background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.25);cursor:pointer;transition:transform 0.2s ease;outline:none;position:relative;z-index:9999;float:' + (isLeft ? 'left' : 'right') + ';';
+
+  // Toggle button hover scale
+  button.addEventListener('mouseenter', () => button.style.transform = 'scale(1.08)');
+  button.addEventListener('mouseleave', () => button.style.transform = 'scale(1)');
+
+  const launcherIcons = {{
+    chat_bubble: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="13" x2="14" y2="13"></line></svg>',
+    support_agent: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6-4.7 8.38 8.38 0 0 1-.9-3.8v-.5a8 8 0 0 1 16 0v.5z"></path><path d="M18 10a6 6 0 0 0-12 0"></path><path d="M12 18h.01"></path><path d="M21 11.5a1.5 1.5 0 0 1-3 0v-1a1.5 1.5 0 0 1 3 0v1z"></path><path d="M6 11.5a1.5 1.5 0 0 1-3 0v-1a1.5 1.5 0 0 1 3 0v1z"></path></svg>',
+    chat_dots: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><circle cx="8" cy="10" r="1"></circle><circle cx="12" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg>',
+    sparkles: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5 5 3Z"></path><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z"></path></svg>'
+  }};
+
+  const iconName = config.theme.launcher_icon || 'chat_bubble';
+  const iconSvg = launcherIcons[iconName] || launcherIcons.chat_bubble;
+  const closeIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+  button.innerHTML = iconSvg;
+
+  function updateButtonIcon() {{
+    if (panel.style.display === 'block') {{
+      button.innerHTML = closeIconSvg;
+    }} else {{
+      button.innerHTML = iconSvg;
+    }}
+  }}
 
   let conversationId = localStorage.getItem('ai_support_conv_id_' + config.widgetId) || null;
   let storedName = localStorage.getItem('ai_support_name_' + config.widgetId) || '';
@@ -718,6 +796,7 @@ def _build_widget_script(config: dict) -> str:
     }} catch (err) {{
     }} finally {{
       humanBtn.disabled = false;
+      updateHumanButtonVisibility();
     }}
   }});
 
@@ -726,15 +805,81 @@ def _build_widget_script(config: dict) -> str:
     item.style.cssText = 'margin:8px 0;display:flex;' + (sender === 'visitor' ? 'justify-content:flex-end;' : 'justify-content:flex-start;');
     const bubble = document.createElement('div');
     bubble.textContent = text;
-    bubble.style.cssText = 'max-width:78%;padding:9px 11px;border-radius:10px;line-height:1.35;white-space:pre-wrap;' + (sender === 'visitor' ? 'background:#4F46E5;color:#fff;' : 'background:#fff;color:#111827;border:1px solid #e5e7eb;');
+    bubble.style.cssText = 'max-width:78%;padding:9px 11px;border-radius:10px;line-height:1.35;white-space:pre-wrap;' + (sender === 'visitor' ? 'background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;' : 'background:#fff;color:#111827;border:1px solid #e5e7eb;');
     item.appendChild(bubble);
     messages.appendChild(item);
     messages.scrollTop = messages.scrollHeight;
   }}
 
+  // Welcome Bubble
+  let welcomeBubble = null;
+  const isBubbleEnabled = config.theme.bubble_enabled !== false;
+  const isDismissed = sessionStorage.getItem('ai_support_bubble_dismissed_' + config.widgetId);
+
+  if (isBubbleEnabled && !isDismissed) {{
+    welcomeBubble = document.createElement('div');
+    welcomeBubble.style.cssText = 'position:absolute;bottom:8px;' + (isLeft ? 'left:70px;' : 'right:70px;') + 'width:220px;background:#fff;border:1px solid #e2e8f0;border-top:4px solid ' + (config.theme.primary_color || '#4F46E5') + ';border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);padding:12px 16px;cursor:pointer;z-index:10000;animation:widget-fade-in-up 0.5s ease forwards;font-family:Arial,sans-serif;box-sizing:border-box;';
+
+    const tail = document.createElement('div');
+    if (isLeft) {{
+      tail.style.cssText = 'position:absolute;left:-6px;top:calc(50% - 6px);width:12px;height:12px;background:#fff;transform:rotate(45deg);border-left:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;z-index:9999;';
+    }} else {{
+      tail.style.cssText = 'position:absolute;right:-6px;top:calc(50% - 6px);width:12px;height:12px;background:#fff;transform:rotate(45deg);border-right:1px solid #e2e8f0;border-top:1px solid #e2e8f0;z-index:9999;';
+    }}
+    welcomeBubble.appendChild(tail);
+
+    const titleText = document.createElement('div');
+    titleText.style.cssText = 'font-weight:bold;font-size:14px;color:#1e293b;margin-bottom:4px;padding-right:12px;word-break:break-word;';
+    titleText.textContent = config.theme.welcome_title || 'Hii there!';
+    welcomeBubble.appendChild(titleText);
+
+    const descText = document.createElement('div');
+    descText.style.cssText = 'font-size:12px;color:#64748b;line-height:1.3;word-break:break-word;';
+    descText.textContent = config.theme.welcome_message || 'Hii, how can I help you?';
+    welcomeBubble.appendChild(descText);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'widget-bubble-dismiss';
+    closeBtn.style.cssText = 'position:absolute;right:8px;top:4px;border:0;background:transparent;font-size:14px;color:#94a3b8;cursor:pointer;line-height:1;padding:2px;font-weight:bold;outline:none;';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => {{
+      e.stopPropagation();
+      welcomeBubble.remove();
+      sessionStorage.setItem('ai_support_bubble_dismissed_' + config.widgetId, 'true');
+    }});
+    welcomeBubble.appendChild(closeBtn);
+
+    welcomeBubble.addEventListener('click', () => {{
+      panel.style.display = 'block';
+      welcomeBubble.remove();
+      sessionStorage.setItem('ai_support_bubble_dismissed_' + config.widgetId, 'true');
+      updateButtonIcon();
+      checkAdminStatus();
+      if (conversationId) {{
+        checkChatMode();
+      }}
+      if (messages.childElementCount === 0) {{
+        if (onboardingStep === 0) {{
+          addMessage('Hi! Before we begin, what is your name?', 'assistant');
+        }} else {{
+          addMessage(config.description || 'How can we help?', 'assistant');
+        }}
+      }}
+    }});
+
+    root.appendChild(welcomeBubble);
+  }}
+
   button.addEventListener('click', function() {{
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    updateButtonIcon();
+    
     if (panel.style.display === 'block') {{
+      if (welcomeBubble) {{
+        welcomeBubble.remove();
+        sessionStorage.setItem('ai_support_bubble_dismissed_' + config.widgetId, 'true');
+      }}
       checkAdminStatus();
       if (conversationId) {{
         checkChatMode();
