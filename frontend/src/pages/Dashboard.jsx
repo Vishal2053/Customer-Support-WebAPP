@@ -7,10 +7,10 @@ import { useAuthStore } from '../context/store'
 import { Card, Button, Badge } from '../components/UI'
 import { knowledgeBaseAPI, widgetAPI, analyticsAPI, chatAPI } from '../services'
 
-const LauncherIconSvg = ({ name, className = "w-6 h-6" }) => {
+const LauncherIconSvg = ({ name, className = "w-6 h-6", ...props }) => {
   if (name === 'support_agent') {
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className={className} {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6-4.7 8.38 8.38 0 0 1-.9-3.8v-.5a8 8 0 0 1 16 0v.5z" />
         <path d="M18 10a6 6 0 0 0-12 0" />
         <path d="M12 18h.01" />
@@ -21,7 +21,7 @@ const LauncherIconSvg = ({ name, className = "w-6 h-6" }) => {
   }
   if (name === 'chat_dots') {
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className={className} {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         <circle cx="8" cy="10" r="1" />
         <circle cx="12" cy="10" r="1" />
@@ -31,7 +31,7 @@ const LauncherIconSvg = ({ name, className = "w-6 h-6" }) => {
   }
   if (name === 'sparkles') {
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className={className} {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
         <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5 5 3Z" />
         <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z" />
@@ -39,7 +39,7 @@ const LauncherIconSvg = ({ name, className = "w-6 h-6" }) => {
     )
   }
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       <line x1="8" y1="9" x2="16" y2="9" />
       <line x1="8" y1="13" x2="14" y2="13" />
@@ -72,6 +72,12 @@ export const Dashboard = () => {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [previewChatOpen, setPreviewChatOpen] = useState(false)
   const [previewBubbleDismissed, setPreviewBubbleDismissed] = useState(false)
+
+  // Custom colors for full customization
+  const [headerTextColor, setHeaderTextColor] = useState('#FFFFFF')
+  const [assistantBgColor, setAssistantBgColor] = useState('#FFFFFF')
+  const [assistantTextColor, setAssistantTextColor] = useState('#1E293B')
+  const [buttonTextColor, setButtonTextColor] = useState('#FFFFFF')
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -106,6 +112,10 @@ export const Dashboard = () => {
         setWelcomeMessage(w.theme?.welcome_message || 'hii how can i help you')
         setLauncherIcon(w.theme?.launcher_icon || 'chat_bubble')
         setBubbleEnabled(w.theme?.bubble_enabled !== false)
+        setHeaderTextColor(w.theme?.header_text_color || '#FFFFFF')
+        setAssistantBgColor(w.theme?.assistant_bg_color || '#FFFFFF')
+        setAssistantTextColor(w.theme?.assistant_text_color || '#1E293B')
+        setButtonTextColor(w.theme?.button_text_color || '#FFFFFF')
       }
     } catch (error) {
       console.error('Failed to load widget:', error)
@@ -129,6 +139,10 @@ export const Dashboard = () => {
       setWelcomeMessage(w.theme?.welcome_message || 'hii how can i help you')
       setLauncherIcon(w.theme?.launcher_icon || 'chat_bubble')
       setBubbleEnabled(w.theme?.bubble_enabled !== false)
+      setHeaderTextColor(w.theme?.header_text_color || '#FFFFFF')
+      setAssistantBgColor(w.theme?.assistant_bg_color || '#FFFFFF')
+      setAssistantTextColor(w.theme?.assistant_text_color || '#1E293B')
+      setButtonTextColor(w.theme?.button_text_color || '#FFFFFF')
     } catch (error) {
       console.error('Failed to generate widget:', error)
     } finally {
@@ -149,7 +163,11 @@ export const Dashboard = () => {
         welcome_title: welcomeTitle,
         welcome_message: welcomeMessage,
         launcher_icon: launcherIcon,
-        bubble_enabled: bubbleEnabled
+        bubble_enabled: bubbleEnabled,
+        header_text_color: headerTextColor,
+        assistant_bg_color: assistantBgColor,
+        assistant_text_color: assistantTextColor,
+        button_text_color: buttonTextColor
       }
       const response = await widgetAPI.updateWidget(widget.widget_id, {
         title: widgetTitle,
@@ -458,6 +476,80 @@ export const Dashboard = () => {
                               </div>
                             </div>
 
+                            <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4 mt-4">
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Header Text Color</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={headerTextColor}
+                                    onChange={(e) => setHeaderTextColor(e.target.value)}
+                                    className="w-8 h-8 border border-slate-800 rounded cursor-pointer bg-transparent"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={headerTextColor}
+                                    onChange={(e) => setHeaderTextColor(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-mono text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Button Text Color</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={buttonTextColor}
+                                    onChange={(e) => setButtonTextColor(e.target.value)}
+                                    className="w-8 h-8 border border-slate-800 rounded cursor-pointer bg-transparent"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={buttonTextColor}
+                                    onChange={(e) => setButtonTextColor(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-mono text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Assistant Msg Bg</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={assistantBgColor}
+                                    onChange={(e) => setAssistantBgColor(e.target.value)}
+                                    className="w-8 h-8 border border-slate-800 rounded cursor-pointer bg-transparent"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={assistantBgColor}
+                                    onChange={(e) => setAssistantBgColor(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-mono text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Assistant Msg Text</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={assistantTextColor}
+                                    onChange={(e) => setAssistantTextColor(e.target.value)}
+                                    className="w-8 h-8 border border-slate-800 rounded cursor-pointer bg-transparent"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={assistantTextColor}
+                                    onChange={(e) => setAssistantTextColor(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-mono text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
                             <div className="border-t border-slate-800 pt-4 mt-4">
                               <h4 className="font-semibold text-sm text-slate-300 mb-3">Welcome Prompter Bubble</h4>
                               
@@ -511,9 +603,9 @@ export const Dashboard = () => {
                                     key={item.id}
                                     type="button"
                                     onClick={() => setLauncherIcon(item.id)}
-                                    className={`flex flex-col items-center justify-center p-2.5 rounded-lg border transition-all cursor-pointer ${
+                                    className={`launcher-btn flex flex-col items-center justify-center p-2.5 rounded-lg border transition-all cursor-pointer ${
                                       launcherIcon === item.id
-                                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
+                                        ? 'active border-indigo-500 bg-indigo-500/10 text-indigo-400'
                                         : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-350 hover:bg-slate-900/60'
                                     }`}
                                   >
@@ -599,32 +691,33 @@ export const Dashboard = () => {
                                 
                                 {/* Mock Chat Window Panel */}
                                 {previewChatOpen && (
-                                  <div className="w-[290px] h-[360px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-slate-850 mb-3 animate-fade-in-up">
+                                  <div className="w-[290px] h-[360px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col mb-3 animate-fade-in-up">
                                     {/* Mock Header */}
-                                    <div className="px-4 py-3.5 text-white font-bold text-sm flex justify-between items-center" style={{ backgroundColor: primaryColor }}>
+                                    <div className="px-4 py-3.5 font-bold text-sm flex justify-between items-center" style={{ backgroundColor: primaryColor, color: headerTextColor }}>
                                       <span>{widgetTitle || 'Chat with us'}</span>
                                       <button 
                                         onClick={() => setPreviewChatOpen(false)}
-                                        className="text-white/80 hover:text-white text-base font-bold outline-none cursor-pointer"
+                                        className="text-base font-bold outline-none cursor-pointer border-0 bg-transparent"
+                                        style={{ color: headerTextColor }}
                                       >
                                         ×
                                       </button>
                                     </div>
                                     {/* Mock Message Area */}
                                     <div className="flex-1 bg-slate-55 p-3 overflow-y-auto space-y-3 flex flex-col text-xs">
-                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                      <div className="self-start max-w-[85%] border border-slate-200 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed" style={{ backgroundColor: assistantBgColor, color: assistantTextColor }}>
                                         Hi! Before we begin, what is your name?
                                       </div>
-                                      <div className="self-end max-w-[85%] text-white px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor }}>
+                                      <div className="self-end max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor, color: buttonTextColor }}>
                                         John Doe
                                       </div>
-                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                      <div className="self-start max-w-[85%] border border-slate-200 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed" style={{ backgroundColor: assistantBgColor, color: assistantTextColor }}>
                                         Thanks, John! What is your email address?
                                       </div>
-                                      <div className="self-end max-w-[85%] text-white px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor }}>
+                                      <div className="self-end max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-none leading-relaxed shadow-sm" style={{ backgroundColor: primaryColor, color: buttonTextColor }}>
                                         john@example.com
                                       </div>
-                                      <div className="self-start max-w-[85%] bg-white border border-slate-200 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed">
+                                      <div className="self-start max-w-[85%] border border-slate-200 px-3 py-2 rounded-2xl rounded-tl-none leading-relaxed" style={{ backgroundColor: assistantBgColor, color: assistantTextColor }}>
                                         {widgetDesc || 'How can we help?'}
                                       </div>
                                     </div>
@@ -634,12 +727,12 @@ export const Dashboard = () => {
                                         type="text"
                                         disabled
                                         placeholder="Type your message..."
-                                        className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-400 outline-none"
+                                        className="flex-1 bg-slate-55 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-400 outline-none"
                                       />
                                       <button
                                         type="button"
-                                        className="text-white text-xs font-semibold px-3 py-1.5 rounded-lg select-none cursor-not-allowed"
-                                        style={{ backgroundColor: primaryColor }}
+                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg select-none cursor-not-allowed border-0"
+                                        style={{ backgroundColor: primaryColor, color: buttonTextColor }}
                                       >
                                         Send
                                       </button>
@@ -695,16 +788,16 @@ export const Dashboard = () => {
                                       setPreviewBubbleDismissed(true)
                                     }
                                   }}
-                                  className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer outline-none text-white border-0"
-                                  style={{ backgroundColor: primaryColor }}
+                                  className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer outline-none border-0"
+                                  style={{ backgroundColor: primaryColor, color: buttonTextColor }}
                                 >
                                   {previewChatOpen ? (
-                                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg className="w-6 h-6" style={{ color: buttonTextColor }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                       <line x1="18" y1="6" x2="6" y2="18"></line>
                                       <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
                                   ) : (
-                                    <LauncherIconSvg name={launcherIcon} className="w-6 h-6" />
+                                    <LauncherIconSvg name={launcherIcon} className="w-6 h-6" style={{ color: buttonTextColor }} />
                                   )}
                                 </button>
 

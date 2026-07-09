@@ -9,12 +9,15 @@ export const authAPI = {
 
 export const knowledgeBaseAPI = {
   addWebsite: (userId, data) =>
-    api.post(`/knowledge-base/website?user_id=${userId}`, data),
+    api.post(`/knowledge-base/website?user_id=${userId}`, data, {
+      timeout: 120000,
+    }),
   uploadDocument: (userId, file) => {
     const formData = new FormData()
     formData.append('file', file)
     return api.post(`/knowledge-base/document?user_id=${userId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
     })
   },
   getKnowledgeBase: (userId) => api.get(`/knowledge-base/?user_id=${userId}`),

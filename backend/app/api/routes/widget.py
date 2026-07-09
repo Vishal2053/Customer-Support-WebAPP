@@ -628,7 +628,7 @@ def _build_widget_script(config: dict) -> str:
   panel.style.cssText = 'display:none;width:320px;max-width:calc(100vw - 40px);height:420px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 18px 40px rgba(15,23,42,.22);overflow:hidden;margin-bottom:12px;';
 
   const header = document.createElement('div');
-  header.style.cssText = 'background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;padding:14px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;';
+  header.style.cssText = 'background:' + (config.theme.primary_color || '#4F46E5') + ';color:' + (config.theme.header_text_color || '#ffffff') + ';padding:14px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;';
   
   const headerText = document.createElement('span');
   headerText.textContent = config.title || 'Chat with us';
@@ -636,7 +636,7 @@ def _build_widget_script(config: dict) -> str:
 
   const humanBtn = document.createElement('button');
   humanBtn.type = 'button';
-  humanBtn.style.cssText = 'background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;display:none;outline:none;';
+  humanBtn.style.cssText = 'background:rgba(255,255,255,0.2);color:' + (config.theme.header_text_color || '#ffffff') + ';border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;display:none;outline:none;';
   humanBtn.textContent = 'Chat with Human';
   header.appendChild(humanBtn);
 
@@ -655,7 +655,7 @@ def _build_widget_script(config: dict) -> str:
   const send = document.createElement('button');
   send.type = 'submit';
   send.textContent = 'Send';
-  send.style.cssText = 'border:0;border-radius:8px;background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;padding:0 14px;font-weight:700;cursor:pointer;';
+  send.style.cssText = 'border:0;border-radius:8px;background:' + (config.theme.primary_color || '#4F46E5') + ';color:' + (config.theme.button_text_color || '#ffffff') + ';padding:0 14px;font-weight:700;cursor:pointer;';
 
   form.appendChild(input);
   form.appendChild(send);
@@ -663,7 +663,7 @@ def _build_widget_script(config: dict) -> str:
   // Circular FAB Button
   const button = document.createElement('button');
   button.type = 'button';
-  button.style.cssText = 'display:flex;align-items:center;justify-content:center;width:56px;height:56px;border:0;border-radius:50%;background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.25);cursor:pointer;transition:transform 0.2s ease;outline:none;position:relative;z-index:9999;float:' + (isLeft ? 'left' : 'right') + ';';
+  button.style.cssText = 'display:flex;align-items:center;justify-content:center;width:56px;height:56px;border:0;border-radius:50%;background:' + (config.theme.primary_color || '#4F46E5') + ';color:' + (config.theme.button_text_color || '#ffffff') + ';box-shadow:0 4px 12px rgba(15,23,42,.25);cursor:pointer;transition:transform 0.2s ease;outline:none;position:relative;z-index:9999;float:' + (isLeft ? 'left' : 'right') + ';';
 
   // Toggle button hover scale
   button.addEventListener('mouseenter', () => button.style.transform = 'scale(1.08)');
@@ -805,7 +805,10 @@ def _build_widget_script(config: dict) -> str:
     item.style.cssText = 'margin:8px 0;display:flex;' + (sender === 'visitor' ? 'justify-content:flex-end;' : 'justify-content:flex-start;');
     const bubble = document.createElement('div');
     bubble.textContent = text;
-    bubble.style.cssText = 'max-width:78%;padding:9px 11px;border-radius:10px;line-height:1.35;white-space:pre-wrap;' + (sender === 'visitor' ? 'background:' + (config.theme.primary_color || '#4F46E5') + ';color:#fff;' : 'background:#fff;color:#111827;border:1px solid #e5e7eb;');
+    bubble.style.cssText = 'max-width:78%;padding:9px 11px;border-radius:10px;line-height:1.35;white-space:pre-wrap;' + 
+      (sender === 'visitor' 
+        ? 'background:' + (config.theme.primary_color || '#4F46E5') + ';color:' + (config.theme.button_text_color || '#ffffff') + ';' 
+        : 'background:' + (config.theme.assistant_bg_color || '#ffffff') + ';color:' + (config.theme.assistant_text_color || '#111827') + ';border:1px solid #e5e7eb;');
     item.appendChild(bubble);
     messages.appendChild(item);
     messages.scrollTop = messages.scrollHeight;

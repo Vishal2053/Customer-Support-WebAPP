@@ -74,7 +74,11 @@ export const KnowledgeBaseForm = ({ userId }) => {
       setSuccess(crawlWebsite ? 'Website crawled and added successfully' : 'Website scraped and added successfully')
       await loadKnowledgeBase()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to add website')
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Scraping request timed out, but the pages may still be scraping/indexing in the background. Please refresh the list in a few moments.')
+      } else {
+        setError(err.response?.data?.detail || 'Failed to add website')
+      }
     } finally {
       setLoading(false)
     }
@@ -98,7 +102,11 @@ export const KnowledgeBaseForm = ({ userId }) => {
       setSuccess('Document uploaded and extracted successfully')
       await loadKnowledgeBase()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to upload document')
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Upload request timed out, but the document may still be processing/indexing in the background. Please refresh the list in a few moments.')
+      } else {
+        setError(err.response?.data?.detail || 'Failed to upload document')
+      }
     } finally {
       setLoading(false)
     }

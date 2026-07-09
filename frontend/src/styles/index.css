@@ -94,10 +94,12 @@ html {
 }
 
 /* Button & Accent Overrides for contrast */
-button,
-button *,
 .bg-indigo-600,
 .bg-indigo-600 *,
+.bg-indigo-650,
+.bg-indigo-650 *,
+.bg-indigo-600\/90,
+.bg-indigo-600\/90 *,
 .bg-indigo-50,
 .bg-indigo-50 *,
 .bg-indigo-500,
@@ -183,4 +185,38 @@ button.bg-slate-800 * {
 }
 .bg-slate-950\/20 {
   background-color: rgba(248, 250, 252, 0.3) !important;
+}
+
+/* Specific overrides for launcher selection button icons to prevent white-on-white contrast issues */
+button.launcher-btn,
+button.launcher-btn * {
+  color: #64748b !important;
+}
+
+button.launcher-btn:hover,
+button.launcher-btn:hover * {
+  color: #1e293b !important;
+}
+
+button.launcher-btn.active,
+button.launcher-btn.active * {
+  color: #1d4ed8 !important;
+}
+
+/* Sidebar navigation button visibility in light theme */
+button.sidebar-btn,
+button.sidebar-btn * {
+  color: #475569 !important;
+}
+
+button.sidebar-btn:hover,
+button.sidebar-btn:hover * {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+button.sidebar-btn.active,
+button.sidebar-btn.active * {
+  color: #ffffff !important;
+  background-color: #4f46e5 !important;
 }

@@ -83,9 +83,9 @@ export const Sidebar = ({ items, active, onSelect }) => (
           <li key={item.id}>
             <button
               onClick={() => onSelect(item.id)}
-              className={`w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-150 flex items-center gap-3 ${
+              className={`sidebar-btn w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-150 flex items-center gap-3 ${
                 active === item.id
-                  ? 'bg-indigo-600/90 text-white shadow-md shadow-indigo-600/10'
+                  ? 'active bg-indigo-600/90 text-white shadow-md shadow-indigo-600/10'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
