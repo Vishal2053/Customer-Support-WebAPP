@@ -511,9 +511,9 @@ def _build_semantic_knowledge_context(db: Client, user_id: str, query: str, limi
         if not valid_items:
             return _build_knowledge_context(db, user_id)
 
-        # Perform Cosine Similarity in Python using original 384 dimensions to be fast
-        query_vector = np.array(query_emb[:384])
-        doc_vectors = np.array([emb[:384] for emb in embeddings_list])
+        # Perform Cosine Similarity in Python using full dimensions
+        query_vector = np.array(query_emb)
+        doc_vectors = np.array(embeddings_list)
 
         query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-9)
         doc_norms = doc_vectors / (np.linalg.norm(doc_vectors, axis=1, keepdims=True) + 1e-9)

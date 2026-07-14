@@ -72,28 +72,42 @@ if not hasattr(huggingface_hub, "cached_download"):
 
     huggingface_hub.cached_download = cached_download
 
-import numpy as np
+import httpx
 from app.schemas import WebsiteSourceRequest, KnowledgeBaseItem
 from app.db import get_service_db
 
 logger = logging.getLogger(__name__)
 MAX_CONTENT_CHARS = 12000
 
-_embedding_model = None
-
 def get_embedding(text: str) -> list:
-    global _embedding_model
-    if _embedding_model is None:
-        from sentence_transformers import SentenceTransformer
-        logger.info("Initializing SentenceTransformer model 'all-MiniLM-L6-v2'...")
-        _embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+    # Use Gemini API (gemini-embedding-2) to generate 1536-dimensional embeddings
+    api_key = os.getenv("Gemini_api_key") or os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        logger.error("Gemini API key not found in environment variables (Gemini_api_key or GEMINI_API_KEY).")
+        return None
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key={api_key}"
+    payload = {
+        "content": {
+            "parts": [{"text": text}]
+        },
+        "outputDimensionality": 1536
+    }
     try:
-        embedding = _embedding_model.encode(text)
-        padded = np.zeros(1536)
-        padded[:len(embedding)] = embedding
-        return padded.tolist()
+        response = httpx.post(url, json=payload, timeout=10.0)
+        if response.status_code == 200:
+            data = response.json()
+            embedding = data.get("embedding", {}).get("values", [])
+            if len(embedding) == 1536:
+                return embedding
+            else:
+                logger.error(f"Gemini API returned unexpected embedding dimension: {len(embedding)}")
+                return None
+        else:
+            logger.error(f"Gemini API error (Status {response.status_code}): {response.text}")
+            return None
     except Exception as e:
-        logger.error(f"Error generating embedding: {e}")
+        logger.error(f"Error generating embedding via Gemini API: {e}")
         return None
 
 
