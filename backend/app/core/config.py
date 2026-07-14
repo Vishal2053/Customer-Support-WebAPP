@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     @property
     def origins_list(self) -> List[str]:
         return [
-            origin.strip().strip('"').strip("'")
+            origin.strip().strip('"').strip("'").rstrip('/')
             for origin in self.allowed_origins.split(",")
             if origin.strip()
         ]
