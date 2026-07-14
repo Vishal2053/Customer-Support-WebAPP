@@ -17,60 +17,7 @@ from postgrest.exceptions import APIError
 from PyPDF2 import PdfReader
 from supabase import Client
 
-# Shim for huggingface_hub cached_download deprecation in newer huggingface_hub versions
-import huggingface_hub
-if not hasattr(huggingface_hub, "cached_download"):
-    from huggingface_hub import hf_hub_download
-    
-    def cached_download(url, **kwargs):
-        parsed = urllib.parse.urlparse(url)
-        path_parts = [p for p in parsed.path.split("/") if p]
-        repo_id = None
-        filename = None
-        
-        if "resolve" in path_parts:
-            idx = path_parts.index("resolve")
-            repo_id = "/".join(path_parts[:idx])
-            filename = "/".join(path_parts[idx+2:])
-        elif "api" in path_parts and "models" in path_parts:
-            idx = path_parts.index("models")
-            if "file" in path_parts:
-                f_idx = path_parts.index("file")
-                repo_id = "/".join(path_parts[idx+1:f_idx])
-                filename = "/".join(path_parts[f_idx+1:])
-                
-        if repo_id and filename:
-            mapped_kwargs = {}
-            for key in ["force_download", "proxies", "token", "local_files_only"]:
-                if key in kwargs:
-                    mapped_kwargs[key] = kwargs[key]
-            if "use_auth_token" in kwargs:
-                mapped_kwargs["token"] = kwargs["use_auth_token"]
-            
-            # Download file using hf_hub_download
-            downloaded = hf_hub_download(repo_id=repo_id, filename=filename, **mapped_kwargs)
-            
-            # Copy to cache_dir if specified
-            if "cache_dir" in kwargs:
-                target_path = os.path.join(kwargs["cache_dir"], filename)
-                os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                shutil.copy2(downloaded, target_path)
-                return target_path
-            return downloaded
-            
-        # Fallback
-        import requests
-        cache_dir = kwargs.get("cache_dir") or os.path.expanduser("~/.cache/huggingface/hub")
-        os.makedirs(cache_dir, exist_ok=True)
-        local_path = os.path.join(cache_dir, os.path.basename(parsed.path))
-        r = requests.get(url, stream=True)
-        r.raise_for_status()
-        with open(local_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-        return local_path
 
-    huggingface_hub.cached_download = cached_download
 
 import httpx
 from app.schemas import WebsiteSourceRequest, KnowledgeBaseItem
