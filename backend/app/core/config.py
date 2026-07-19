@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     public_api_base_url: str = "http://localhost:8000"
     
     # CORS Configuration
-    allowed_origins: str = "http://localhost:3000,http://localhost:5173,https://customer-support-web-app.vercel.app"
+    allowed_origins: str = "http://localhost:3000,http://localhost:5173,https://customer-support-web-app-akd8-teal.vercel.app"
     
     @property
     def origins_list(self) -> List[str]:
