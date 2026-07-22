@@ -6,6 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        supportly: {
+          primary: '#124975',
+          secondary: '#1B6FE5',
+          accent: '#4F9DFF',
+          bgLight: '#F8FBFF',
+          white: '#FFFFFF',
+        },
         // Re-mapping slate to support light theme naturally without modifying component code
         slate: {
           50: '#0f172a',   // text-slate-50 maps to dark charcoal
@@ -40,6 +47,11 @@ module.exports = {
         cyan: {
           400: '#60a5fa',  // maps cyan in gradients to light blue
         },
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        manrope: ['Manrope', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
       },
     },
   },

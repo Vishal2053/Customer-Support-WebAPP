@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button, Badge } from './UI'
 import { useAuth } from '../hooks'
 import { useAuthStore } from '../context/store'
-import logoIcon from '../assets/images/supportly-app-icon.png'
+import fullLogo from '../assets/images/supportly-full-logo.png'
 
 export const Navbar = () => {
   const navigate = useNavigate()
@@ -17,76 +17,73 @@ export const Navbar = () => {
   const isAdmin = user?.role === 'admin' || user?.email === 'datascientistvishu@gmail.com'
 
   return (
-    <nav className="glass-panel sticky top-0 z-50 border-b border-slate-800/80 backdrop-blur-md">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <img src={logoIcon} alt="Supportly Logo" className="h-8 w-8 object-contain rounded-lg shadow-md border border-slate-800 bg-white/5 p-0.5 group-hover:scale-105 transition-transform duration-200" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent tracking-tight">
-            Supportly
-          </span>
-          <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-            RAG v1.1
-          </span>
-        </Link>
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-sm font-medium text-slate-300 hover:text-white transition">Home</Link>
-          <a href="/#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white transition">How it Works</a>
-          <Link to="/contact" className="text-sm font-medium text-slate-300 hover:text-white transition">Contact</Link>
-          {isAuthenticated ? (
-            <>
-              {isAdmin ? (
-                <Link to="/admin" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition">Admin Panel</Link>
-              ) : (
-                <Link to="/dashboard" className="text-sm font-medium text-slate-300 hover:text-white transition">Dashboard</Link>
-              )}
-              {isAdmin && (
-                <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white transition">User Console</Link>
-              )}
-              <span className="text-sm font-medium text-indigo-400 bg-indigo-500/5 px-3 py-1 rounded-full border border-indigo-500/10">
-                {user?.email}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleLogout}
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/5 border border-red-500/10 hover:border-red-500/20"
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link to="/login">
-                <Button size="sm">Login</Button>
+    <nav className="glass-capsule sticky top-4 mx-auto z-50 w-[95%] max-w-7xl px-6 py-3 rounded-full flex justify-between items-center transition-all duration-300">
+      <Link to="/" className="flex items-center gap-2 group">
+        <img src={fullLogo} alt="Supportly Logo" className="h-14 md:h-16 w-auto object-contain mix-blend-multiply drop-shadow-sm" />
+      </Link>
+
+      <div className="hidden md:flex items-center gap-6 text-xs font-bold text-slate-600">
+        <a href="/#features" className="hover:text-[#1B6FE5] transition-colors px-1 py-1">Features</a>
+        <a href="/#how-it-works" className="hover:text-[#1B6FE5] transition-colors px-1 py-1">How It Works</a>
+        <a href="/#why-supportly" className="hover:text-[#1B6FE5] transition-colors px-1 py-1">Use Cases</a>
+        <a href="/#faq" className="hover:text-[#1B6FE5] transition-colors px-1 py-1">Docs</a>
+        <Link to="/contact" className="hover:text-[#1B6FE5] transition-colors px-1 py-1">Contact</Link>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {isAuthenticated ? (
+          <>
+            {isAdmin ? (
+              <Link to="/admin">
+                <button className="text-xs font-extrabold text-[#1B6FE5] hover:text-[#124975] px-3 py-1.5 transition-all">
+                  Admin Panel
+                </button>
               </Link>
-            </div>
-          )}
-        </div>
+            ) : (
+              <Link to="/dashboard">
+                <button className="text-xs font-extrabold text-[#1B6FE5] hover:text-[#124975] px-3 py-1.5 transition-all">
+                  Dashboard
+                </button>
+              </Link>
+            )}
+            <span className="hidden lg:inline text-xs font-semibold text-[#124975] bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+              {user?.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500/10 text-red-600 hover:bg-red-500/20 px-4 py-2 rounded-full text-xs font-bold border border-red-500/20 transition-all active:scale-[0.98]"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link to="/login">
+            <button className="bg-[#1B6FE5] hover:bg-[#124975] text-white-pure px-6 py-2.5 rounded-full text-xs md:text-sm font-black shadow-md transition-all duration-200 active:scale-[0.98]">
+              Login
+            </button>
+          </Link>
+        )}
       </div>
     </nav>
   )
 }
 
 export const Sidebar = ({ items, active, onSelect }) => (
-  <aside className="w-64 bg-slate-900/60 border-r border-slate-800/80 min-h-screen p-6 sticky top-[73px] flex flex-col justify-between">
+  <aside className="w-64 bg-white/70 border-r border-slate-200/80 min-h-screen p-6 sticky top-[73px] flex flex-col justify-between backdrop-blur-md">
     <div>
       <div className="mb-8 flex items-center gap-3">
-        <img src={logoIcon} alt="Supportly" className="h-8 w-8 rounded-lg object-contain bg-white/5 border border-slate-800 p-0.5" />
-        <div>
-          <p className="text-[11px] uppercase font-bold tracking-wider text-slate-500">Workspace</p>
-          <h3 className="font-semibold text-slate-300 text-sm mt-0.5">Supportly Dashboard</h3>
-        </div>
+        <img src={fullLogo} alt="Supportly Logo" className="h-10 w-auto object-contain mix-blend-multiply" />
       </div>
-      <p className="text-[11px] uppercase font-bold tracking-wider text-slate-500 mb-3">Navigation</p>
+      <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-3">Navigation</p>
       <ul className="space-y-1.5">
         {items.map((item) => (
           <li key={item.id}>
             <button
               onClick={() => onSelect(item.id)}
-              className={`sidebar-btn w-full text-left px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-150 flex items-center gap-3 ${
+              className={`w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 flex items-center gap-3 ${
                 active === item.id
-                  ? 'active bg-indigo-600/90 text-white shadow-md shadow-indigo-600/10'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-supportly-secondary text-white-pure shadow-sm shadow-supportly-secondary/10'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
               }`}
             >
               {item.label}
@@ -95,8 +92,8 @@ export const Sidebar = ({ items, active, onSelect }) => (
         ))}
       </ul>
     </div>
-    <div className="pt-6 border-t border-slate-800">
-      <p className="text-[10px] text-slate-600 text-center font-mono">Supportly Dashboard © 2026</p>
+    <div className="pt-6 border-t border-slate-100">
+      <p className="text-[10px] text-slate-400 text-center font-mono">Supportly © 2026</p>
     </div>
   </aside>
 )
